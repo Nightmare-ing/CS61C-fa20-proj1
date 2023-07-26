@@ -1,3 +1,6 @@
+#ifndef IMAGELOADER_H
+#define IMAGELOADER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -23,3 +26,5 @@ extern void writeData(Image *image);
 
 //Frees an image and all its associated data
 extern void freeImage(Image *image);
+
+#endif
