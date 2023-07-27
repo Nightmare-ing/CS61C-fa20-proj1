@@ -10,7 +10,7 @@ PartA: imageloader.o imageloadertester.o steganography.o
 	$(CC) $(LDFLAGS) -o steganography steganography.o imageloader.o
 
 PartB: imageloader.o gameoflife.o
-	$(CC) $(LDFLAGS) -o gameOfLife gameoflife.o imageloader.o
+	$(CC) $(LDFLAGS) -o gameOfLife gameoflife.o imageloader.o -lm
 
 imageloader: imageloader.o imageloadertester.o
 	$(CC) $(LDFLAGS) -o imageloadertester imageloader.o imageloadertester.o
@@ -33,7 +33,7 @@ steganographymemcheck:  steganography
 	valgrind $(VGFLAGS) ./steganography testInputs/JohnConway.ppm > studentOutputs/secretMessage.ppm
 
 gameoflife: imageloader.o gameoflife.o
-	$(CC) $(LDFLAGS) -o gameOfLife gameoflife.o imageloader.o
+	$(CC) $(LDFLAGS) -o gameOfLife gameoflife.o imageloader.o -lm
 	echo "Successfully compiled"
 	echo "Run ./frames.csh for various tests"
 

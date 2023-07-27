@@ -18,11 +18,11 @@
 #include <math.h>
 #include <stdbool.h>
 #include "imageloader.h"
-#include "test_gameoflife.h"
-
+//#include "test_gameoflife.h"
 
 #define EIGHT_BIT_MAX (255)
 #define EIGHT_BIT_MAX_POW (256)
+
 //Determines what color the cell at the given row/col should be. This function allocates space for a new Color.
 //Note that you will need to read the eight neighbors of the cell in question. The grid "wraps", so we treat the top row as adjacent to the bottom row
 //and the left column as adjacent to the right column.
@@ -43,7 +43,6 @@ int take_plane_bit(Image *image, int row, int col, size_t bit_plane) {
 size_t get_alive_neighbors(Image *image, int row, int col, size_t bit_plane) {
     size_t alive_neighbors = 0;
     int i, j, i_copy, j_copy;
-    uint32_t bplane;
     for (i = row - 1; i < row + 2; ++i) {
         i_copy = (i + image->rows) % image->rows; /* correct i to fit the first line */
         for (j = col - 1; j < col + 2; ++j) {
@@ -97,6 +96,7 @@ Color *convert_RGBcode(uint32_t RGB_code) {
     result->B = RGB_code & EIGHT_BIT_MAX;
     result->G = (RGB_code / EIGHT_BIT_MAX_POW) & EIGHT_BIT_MAX;
     result->R = (RGB_code / EIGHT_BIT_MAX_POW / EIGHT_BIT_MAX_POW) & EIGHT_BIT_MAX;
+    return result;
 }
 
 Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule) {
@@ -118,13 +118,37 @@ Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule) {
     return convert_RGBcode(RGB_code);
 }
 
-////The main body of Life; given an image and a rule, computes one iteration of the Game of Life.
-////You should be able to copy most of this from steganography.c
-//Image *life(Image *image, uint32_t rule)
-//{
-//	//YOUR CODE HERE
-//}
-//
+//The main body of Life; given an image and a rule, computes one iteration of the Game of Life.
+//You should be able to copy most of this from steganography.c
+Image *life(Image *image, uint32_t rule)
+{
+    Image *convert_image = (Image *) malloc(sizeof(Image));
+    if (convert_image == NULL) exit(-1);
+
+    Color *convert_pixel = NULL;
+    Color *pixel_row = NULL;
+    uint32_t i = 0, j = 0, rows = image->rows, cols = image->cols;
+    convert_image->image = (Color **) malloc(sizeof(Color *) * rows);
+    if (convert_image->image == NULL) exit(-1);
+
+    convert_image->rows = rows;
+    convert_image->cols = cols;
+
+    for (i = 0; i < image->rows; ++i) {
+        pixel_row = (Color *) malloc(sizeof(Color) * cols);
+        if (pixel_row == NULL) exit(-1);
+
+        for (j = 0; j < image->cols; ++j) {
+            convert_pixel = evaluateOneCell(image, i, j, rule);
+            pixel_row[j] = *convert_pixel;
+            free(convert_pixel);
+        }
+        convert_image->image[i] = pixel_row;
+    }
+
+    return convert_image;
+}
+
 /*
 Loads a .ppm from a file, computes the next iteration of the game of life, then prints to stdout the new image.
 
@@ -142,10 +166,31 @@ You may find it useful to copy the code from steganography.c, to start.
 */
 int main(int argc, char **argv)
 {
+    /*
     test_get_alive_neighbors();
     test_alive_dead_situations();
     test_is_alive();
     test_in_array();
     test_convert_RGBcode();
     test_evaluateOneCell();
+     */
+
+    char *filename = argv[1];
+    Image *image = NULL;
+    Image *convert_image = NULL;
+    char *end_error_ptr = NULL;
+    uint32_t rule = strtoul(argv[2], &end_error_ptr, 16);
+
+    if (argc != 3) {
+        printf("usage: %s filename %s\n", argv[0], argv[2]);
+        printf("filename is an ASCII PPM file (type P3) with maximum value 255.\n");
+        printf("rule is a hex number beginning with 0x; Life is 0x1808.\n");
+        exit(-1);
+    }
+
+    image = readData(filename);
+    convert_image = life(image, rule);
+    writeData(convert_image);
+    freeImage(image);
+    freeImage(convert_image);
 }
