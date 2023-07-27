@@ -18,14 +18,14 @@
 #include <math.h>
 #include <stdbool.h>
 #include "imageloader.h"
-//#include "test_gameoflife.h"
+//#include "test_gameoflife.h" // for custom test sets to verify the
+//correctness of the code
 
 #define EIGHT_BIT_MAX (255)
 #define EIGHT_BIT_MAX_POW (256)
 
-//Determines what color the cell at the given row/col should be. This function allocates space for a new Color.
-//Note that you will need to read the eight neighbors of the cell in question. The grid "wraps", so we treat the top row as adjacent to the bottom row
-//and the left column as adjacent to the right column.
+
+/* extract the bit at the bit_plane */
 int take_plane_bit(Image *image, int row, int col, size_t bit_plane) {
     if (bit_plane < 8) {
         return image->image[row][col].B >> bit_plane & 1;
@@ -36,6 +36,7 @@ int take_plane_bit(Image *image, int row, int col, size_t bit_plane) {
     }
 }
 
+/* get the number of the alive neighbors at BIT_PLANE */
 size_t get_alive_neighbors(Image *image, int row, int col, size_t bit_plane) {
     size_t alive_neighbors = 0;
     int i, j, i_copy, j_copy;
@@ -50,6 +51,7 @@ size_t get_alive_neighbors(Image *image, int row, int col, size_t bit_plane) {
     return alive_neighbors;
 }
 
+/* extract infomation of the alive situations from the rule code */
 void alive_dead_situations(uint32_t rule, size_t *alive_neigh_array, size_t *dead_neigh_array,
         size_t *alive_array_size, size_t *dead_array_size) {
     size_t order = 0;
@@ -73,10 +75,12 @@ void alive_dead_situations(uint32_t rule, size_t *alive_neigh_array, size_t *dea
     }
 }
 
+/* determine the pixel is alive or not at BIT_PLANE */
 bool is_alive(Image *image, int row, int col, size_t bit_plane) {
     return take_plane_bit(image, row, col, bit_plane);
 }
 
+/* determine whether the ELEM is in ARRAY which has size SIZE */
 bool in_array(size_t array[], size_t size, size_t elem) {
     size_t i = 0;
     for (i = 0; i < size; ++i) {
@@ -95,6 +99,9 @@ Color *convert_RGBcode(uint32_t RGB_code) {
     return result;
 }
 
+//Determines what color the cell at the given row/col should be. This function allocates space for a new Color.
+//Note that you will need to read the eight neighbors of the cell in question. The grid "wraps", so we treat the top row as adjacent to the bottom row
+//and the left column as adjacent to the right column.
 Color *evaluateOneCell(Image *image, int row, int col, uint32_t rule) {
     size_t neigh_num_alive[9], neigh_num_dead[9], alive_array_size, dead_array_size;
     size_t bit_plane = 0, alive_neighbors;
