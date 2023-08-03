@@ -27,16 +27,12 @@
 //Note that you will need to read the eight neighbors of the cell in question. The grid "wraps", so we treat the top row as adjacent to the bottom row
 //and the left column as adjacent to the right column.
 int take_plane_bit(Image *image, int row, int col, size_t bit_plane) {
-    uint32_t bplane;
     if (bit_plane < 8) {
-        bplane = (uint32_t) pow(2, bit_plane);
-        return (image->image[row][col].B & bplane) / bplane;
+        return image->image[row][col].B >> bit_plane & 1;
     } else if (bit_plane < 16) {
-        bplane = (uint32_t) pow(2, bit_plane - 8) ;
-        return (image->image[row][col].G & bplane) / bplane;
+        return image->image[row][col].G >> (bit_plane - 8) & 1;
     } else {
-        bplane = (uint32_t) pow(2, bit_plane - 16);
-        return (image->image[row][col].R & bplane) / bplane;
+        return image->image[row][col].R >> (bit_plane - 16) & 1;
     }
 }
 
